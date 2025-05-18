@@ -9,14 +9,13 @@ interface Props {
     onPress?: () => void;
 }
 
-const FeaturedCard = ({onPress}:Props) => {
+const FeaturedCard = ({item, onPress}:Props) => {
     return (
         <TouchableOpacity
     onPress={onPress}
     className="flex flex-col items-start w-60 h-80 relative"
         >
-        <Image source={images.japan} className="size-full rounded-2xl" />
-
+        <Image source={{uri:item.image}} className="size-full rounded-2xl" />
         <Image
     source={images.cardGradient}
     className="size-full rounded-2xl absolute bottom-0"

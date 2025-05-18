@@ -1,5 +1,5 @@
-import {Text, View, Image, TouchableOpacity, FlatList} from "react-native";
-import {Link} from "expo-router";
+import {Text, View, Image, TouchableOpacity, FlatList, Button} from "react-native";
+import {Link, router, useLocalSearchParams} from "expo-router";
 import {SafeAreaView} from "react-native-safe-area-context";
 import images from "@/constants/images";
 import icons from "@/constants/icons";
@@ -7,12 +7,43 @@ import Search from "@/components/Search";
 import {Card, FeaturedCard} from "@/components/Cards";
 import Filters from "@/components/Filters";
 import {useGlobalContext} from "@/lib/global-provider";
+import {useAppwrite} from "@/lib/useAppwrite";
+import {getGyms, getLatestGyms} from "@/lib/appwrite";
+import {useEffect} from "react";
+import {it} from "node:test";
+
 export default function Index() {
     const {user} = useGlobalContext();
+    const params = useLocalSearchParams<{query?:string; filter?:string;}>();
+    const { data: latestGyms, loading: latestGymsLoading} = useAppwrite({
+        fn: getLatestGyms,
+    });
+
+    const {data: gyms, loading, refetch} = useAppwrite({
+        fn: getGyms,
+        params:{
+            filter: params.filter!,
+            query: params.query!,
+            limit: 6,
+        },
+        skip: true
+    })
+
+    const handleCardPress = (id:string) => router.push(`/gym/${id}`);
+
+    useEffect(()=>{
+        refetch(
+            {
+                filter: params.filter!,
+                query: params.query!,
+                limit: 6,
+            }
+        )
+    })
   return (
    <SafeAreaView className="bg-white h-full">
-       <FlatList data={[1,2,3,4]}
-                 renderItem={({item})=> <Card/>}
+       <FlatList data={gyms}
+                 renderItem={({item})=> <Card item={item} onPress={()=> handleCardPress(item.$id)}/>}
                  keyExtractor={(item)=> item.toString()}
                  numColumns={2}
                  contentContainerClassName="pb-32"
@@ -39,8 +70,8 @@ export default function Index() {
                                  </TouchableOpacity>
 
                              </View>
-                             <FlatList data={[1,2,3]}
-                                       renderItem={({item}) => <FeaturedCard/>}
+                             <FlatList data={latestGyms}
+                                       renderItem={({item}) => <FeaturedCard item={item} onPress={()=> handleCardPress(item.$id)}/>}
                                        keyExtractor={(item)=>item.toString()}
                                        horizontal bounces={false} showsHorizontalScrollIndicator={false} contentContainerClassName="flex gap-5 mt-5"/>
                          </View>

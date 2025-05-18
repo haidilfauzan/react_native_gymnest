@@ -1,4 +1,4 @@
-import {Account, Avatars, Client, Databases, OAuthProvider} from "react-native-appwrite";
+import {Account, Avatars, Client, Databases, OAuthProvider, Query} from "react-native-appwrite";
 import * as Linking from "expo-linking";
 import {openAuthSessionAsync} from "expo-web-browser";
 
@@ -81,4 +81,55 @@ export async function getCurrentUser() {
         console.error(error);
         return null;
     }
+}
+
+export async function getLatestGyms(){
+    try {
+        const result = await databases.listDocuments(
+            config.databaseId!,
+            config.gymsCollectionId!,
+            [Query.orderAsc('$createdAt'), Query.limit(15)])
+        return result.documents;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export async function getGyms({filter, query, limit}: {filter: string, query: string, limit?: number})
+{
+    try {
+    const buildQuery = [Query.orderDesc('$createdAt')];
+    if(filter && filter != 'All') {
+        buildQuery.push(Query.equal('facilities', filter))
+
+        if(query){
+            buildQuery.push(
+                Query.or(
+                    [
+                        Query.search('name', query),
+                        Query.search('description', query),
+                        Query.search('address', query),
+                        Query.search('facilities', query),
+
+                    ]
+                )
+            )
+        }
+
+        if(limit){
+            buildQuery.push(Query.limit(limit))
+        }
+
+        const result = await databases.listDocuments(
+            config.databaseId!,
+            config.gymsCollectionId!,
+            buildQuery)
+        return result.documents;
+    }
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+
 }
