@@ -23,7 +23,6 @@ const SignIn = () => {
       <SafeAreaView className="bg-white h-full">
          <ScrollView contentContainerClassName="h-full">
              <Image source={images.onboarding} className="w-full h-4/6" resizeMode="contain" />
-         </ScrollView>
           <View className="px-10">
               <Text className="text-base text-center uppercase font-rubik text-black-200">
                   Welcome To GYMNEST
@@ -53,6 +52,7 @@ const SignIn = () => {
                   </View>
               </TouchableOpacity>
           </View>
+         </ScrollView>
       </SafeAreaView>
     )
 }

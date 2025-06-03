@@ -11,6 +11,11 @@ import {useAppwrite} from "@/lib/useAppwrite";
 import {getGyms, getLatestGyms} from "@/lib/appwrite";
 import {useEffect} from "react";
 import {it} from "node:test";
+import NoResults from "@/components/NoResults";
+
+function ActvityIndicator() {
+    return null;
+}
 
 export default function Index() {
     const {user} = useGlobalContext();
@@ -19,15 +24,15 @@ export default function Index() {
         fn: getLatestGyms,
     });
 
-    const {data: gyms, loading, refetch} = useAppwrite({
+    const { data: gyms, loading, refetch } = useAppwrite({
         fn: getGyms,
-        params:{
-            filter: params.filter!,
-            query: params.query!,
+        params: {
+            filter: params.filter || 'All', // Default to 'All' if undefined
+            query: params.query || '',     // Default to empty string if undefined
             limit: 6,
         },
-        skip: true
-    })
+        // skip: false, // Uncomment this if you want to fetch all initially
+    });
 
     const handleCardPress = (id:string) => router.push(`/gym/${id}`);
 
@@ -44,11 +49,12 @@ export default function Index() {
    <SafeAreaView className="bg-white h-full">
        <FlatList data={gyms}
                  renderItem={({item})=> <Card item={item} onPress={()=> handleCardPress(item.$id)}/>}
-                 keyExtractor={(item)=> item.toString()}
+                 keyExtractor={(item)=> item.$id}
                  numColumns={2}
                  contentContainerClassName="pb-32"
                  columnWrapperClassName="flex px-5 gap-5"
                  showsVerticalScrollIndicator={false}
+                 // ListEmptyComponent={loading?(<ActvityIndicator size="large" className="text-primary-300 mt-5"  />) :  <NoResults/>}
                  ListHeaderComponent={
                      <View className="px-5">
                          <View className="flex flex-row items-center justify-between mt-5">
@@ -72,8 +78,10 @@ export default function Index() {
                              </View>
                              <FlatList data={latestGyms}
                                        renderItem={({item}) => <FeaturedCard item={item} onPress={()=> handleCardPress(item.$id)}/>}
-                                       keyExtractor={(item)=>item.toString()}
-                                       horizontal bounces={false} showsHorizontalScrollIndicator={false} contentContainerClassName="flex gap-5 mt-5"/>
+                                       keyExtractor={(item)=>item.$id}
+                                       horizontal bounces={false}
+                                       showsHorizontalScrollIndicator={false}
+                                       contentContainerClassName="flex gap-5 mt-5"/>
                          </View>
                          <View className="flex flex-row items-center justify-between">
                              <Text className="text-xl font-rubik-bold text-black-300">Recommendation</Text>

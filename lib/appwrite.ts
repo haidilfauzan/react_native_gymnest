@@ -39,7 +39,7 @@ export async function login(){
             redirectUri,
         )
         if (browserResult.type != 'success')
-            throw new Error('Authentication failed');
+            throw new Error("Create OAuth2 token failed");
 
         const url = new URL(browserResult.url);
         const secret = url.searchParams.get('secret')?.toString();
@@ -59,8 +59,8 @@ export async function login(){
 
 export async function logout(){
     try {
-        await account.deleteSession('current');
-        return true;
+        const result = await account.deleteSession('current');
+        return result;
     } catch (error) {
         console.error(error);
         return false;
@@ -75,8 +75,9 @@ export async function getCurrentUser() {
             return {
                 ...response,
                 avatar: userAvatar.toString()
-            }
+            };
         }
+        return null;
     } catch (error) {
         console.error(error);
         return null;
@@ -88,7 +89,7 @@ export async function getLatestGyms(){
         const result = await databases.listDocuments(
             config.databaseId!,
             config.gymsCollectionId!,
-            [Query.orderAsc('$createdAt'), Query.limit(15)])
+            [Query.orderAsc('$createdAt'), Query.limit(5)])
         return result.documents;
     } catch (error) {
         console.error(error);
@@ -96,14 +97,15 @@ export async function getLatestGyms(){
     }
 }
 
-export async function getGyms({filter, query, limit}: {filter: string, query: string, limit?: number})
-{
+export async function getGyms({ filter, query, limit }: { filter: string, query: string, limit?: number }) {
     try {
-    const buildQuery = [Query.orderDesc('$createdAt')];
-    if(filter && filter != 'All') {
-        buildQuery.push(Query.equal('facilities', filter))
+        const buildQuery = [Query.orderDesc('$createdAt')];
 
-        if(query){
+        if (filter && filter != 'All') {
+            buildQuery.push(Query.equal('facilities', filter));
+        }
+
+        if (query) {
             buildQuery.push(
                 Query.or(
                     [
@@ -111,25 +113,37 @@ export async function getGyms({filter, query, limit}: {filter: string, query: st
                         Query.search('description', query),
                         Query.search('address', query),
                         Query.search('facilities', query),
-
                     ]
                 )
-            )
+            );
         }
 
-        if(limit){
-            buildQuery.push(Query.limit(limit))
+        if (limit) {
+            buildQuery.push(Query.limit(limit));
         }
 
         const result = await databases.listDocuments(
             config.databaseId!,
             config.gymsCollectionId!,
-            buildQuery)
-        return result.documents;
-    }
+            buildQuery
+        );
+        return result.documents; // Return documents in all cases
     } catch (error) {
         console.error(error);
         return [];
     }
+}
 
+export async function getGymById({ id }: { id: string }) {
+    try {
+        const result = await databases.getDocument(
+            config.databaseId!,
+            config.gymsCollectionId!,
+            id
+        );
+        return result;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }

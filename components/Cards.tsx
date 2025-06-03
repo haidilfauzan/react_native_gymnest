@@ -9,13 +9,13 @@ interface Props {
     onPress?: () => void;
 }
 
-const FeaturedCard = ({item, onPress}:Props) => {
+const FeaturedCard = ({item:{image,rating, name, address}, onPress}:Props) => {
     return (
         <TouchableOpacity
     onPress={onPress}
     className="flex flex-col items-start w-60 h-80 relative"
         >
-        <Image source={{uri:item.image}} className="size-full rounded-2xl" />
+        <Image source={{uri:image}} className="size-full rounded-2xl" />
         <Image
     source={images.cardGradient}
     className="size-full rounded-2xl absolute bottom-0"
@@ -24,7 +24,7 @@ const FeaturedCard = ({item, onPress}:Props) => {
         <View className="flex flex-row items-center bg-white/90 px-3 py-1.5 rounded-full absolute top-5 right-5">
         <Image source={icons.star} className="size-3.5" />
         <Text className="text-xs font-rubik-bold text-primary-300 ml-1">
-        4.4
+            {rating}
 </Text>
 </View>
 
@@ -33,10 +33,10 @@ const FeaturedCard = ({item, onPress}:Props) => {
             className="text-xl font-rubik-extrabold text-white"
             numberOfLines={1}
         >
-            Haidil Gym
+            {name}
         </Text>
         <Text className="text-base font-rubik text-white" numberOfLines={1}>
-            Perumahan marina central
+            {address}
         </Text>
 
         <View className="flex flex-row items-center justify-between w-full">
@@ -50,7 +50,7 @@ const FeaturedCard = ({item, onPress}:Props) => {
     )
 }
 
-const Card = ({onPress}:Props) => {
+const Card = ({item:{image,rating, name, address}, onPress}:Props) => {
     return (
         <TouchableOpacity
             className="flex-1 w-full mt-4 px-3 py-4 rounded-lg bg-white shadow-lg shadow-black-100/70 relative"
@@ -63,14 +63,14 @@ const Card = ({onPress}:Props) => {
                 </Text>
             </View>
 
-            <Image source={images.newYork} className="w-full h-40 rounded-lg" />
+            <Image source={{uri:image}} className="w-full h-40 rounded-lg" />
 
             <View className="flex flex-col mt-2">
                 <Text className="text-base font-rubik-bold text-black-300">
-                   Haidil Gym
+                    {name}
                 </Text>
                 <Text className="text-xs font-rubik text-black-100">
-                    Perumahan marina central
+                    {address}
                 </Text>
 
                 <View className="flex flex-row items-center justify-between mt-2">
